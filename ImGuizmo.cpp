@@ -1342,7 +1342,7 @@ namespace ImGuizmo
    }
 
 
-   static void DrawTranslationGizmo(OPERATION op, int type)
+   static void DrawTranslationGizmo(OPERATION op, int type, bool drawQuads = true)
    {
       ImDrawList* drawList = gContext.mDrawList;
       if (!drawList)
@@ -1396,7 +1396,7 @@ namespace ImGuizmo
          }
 
          // draw plane
-         if (belowPlaneLimit && Contains(op, TRANSLATE_PLANS[i]))
+         if (belowPlaneLimit && Contains(op, TRANSLATE_PLANS[i]) && drawQuads)
          {
             ImVec2 screenQuadPts[4];
             for (int j = 0; j < 4; ++j)
@@ -2281,6 +2281,19 @@ namespace ImGuizmo
          DrawScaleGizmo(operation, type);
       }
       return manipulated;
+   }
+
+   void Draw(const float* view, const float* projection, OPERATION operation, MODE mode, float* matrix)
+   {
+      ComputeContext(view, projection, matrix, mode);
+
+      int type = MT_NONE;
+      if (!gContext.mbUsingBounds)
+      {
+         DrawRotationGizmo(operation, type);
+         DrawTranslationGizmo(operation, type, false);
+         DrawScaleGizmo(operation, type);
+      }
    }
 
    void SetGizmoSizeClipSpace(float value)
